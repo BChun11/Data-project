@@ -10,46 +10,33 @@ class Project2_rdd:
         # Input files
         file = sc.textFile(inputPath)
         stop_words = sc.textFile(inputPath2)
-        # Format file into format [(year), {term1, term2, .., termn}]
-        format_words= file.map(lambda line: line.split(",")).map(lambda x: (x[0], x[1].split(" ")))
-        format_words = format_words.map(lambda x: (x[0], set(x[1]))).map(lambda x: (x[0][:4], x[1]))
-        # flatMap RDD into format: [(year, term, 1)]
-        pair = format_words.flatMap(lambda x: [((x[0], value), 1) for value in x[1]])
-        # Map to form: [term, (year, 1)]
-        pair = pair.map(lambda x: (x[0][1], (x[0][0], x[1])))
         
-        # Take in stop words input file and map into form: (stopword, 1)
-        stop_words = stop_words.map(lambda x: (x, 1))
+        # Format file into format [(year), {term1, term2, .., termn}]
+        format_words = file.map(lambda line: line.split(",")).map(lambda x: (x[0][:4], x[1].split(" ")))
+        format_words = format_words.flatMap(lambda x: [((x[0], value), 1) for value in x[1]])
+
+        # Prepare stopwords as a dictionary
+        stopwords_dict = stop_words.collectAsMap()
+
         # Filter RDD by removing all stop words from pair(RDD)
-        filtered_words = pair.subtractByKey(stop_words)
-        filtered_words = filtered_words.map(lambda x: ((x[1][0], x[0]), x[1][1]))
+        filtered_words = format_words.filter(lambda x: x[0][1] not in stopwords_dict)
 
-        # Calculation for TF
-        # Use reduceByKey() to sum values that have the same (year, term)
-        tf = filtered_words.reduceByKey(lambda a, b: a + b)
-        # Map to form: (term, (year, count))
-        tf = tf.map(lambda x: (x[0][1], (x[0][0], x[1])))
+        # Calculate TF
+        tf = filtered_words.reduceByKey(lambda a, b: a + b).map(lambda x: (x[0][1], (x[0][0], x[1])))
 
-        # Calculation for IDF
-        # Count the number of years in the dataset
+        # Calculate IDF
         count_year = file.map(lambda line: line.split(",")).map(lambda x: x[0][:4]).distinct().count()
-        # Map and take distinct tuples for filtered_words RDD in form: (year, term) 
-        idf = filtered_words.map(lambda x: (x[0])).distinct()
-        # Use reduceByKey to retrieve the number of years for having t(term)
-        idf = idf.map(lambda x: (x[1], (1))).reduceByKey(lambda a,b: a + b)
-        idf = idf.map(lambda x: (x[0], math.log10(float(count_year) / float(x[1]))))
+        idf = filtered_words.map(lambda x: (x[0][1], 1)).distinct().reduceByKey(lambda a, b: a + b).map(lambda x: (x[0], math.log10(float(count_year) / float(x[1]))))
 
         # Join TF and IDF and calculate for weight
         join = tf.join(idf)
         weight = join.map(lambda x: (x[1][0][0], (x[0], round(float(x[1][0][1]) * float(x[1][1]), 6))))
-        # Sort RDD: Year in ascending, Weight in desending then term alphabetically
         weight = weight.sortBy(lambda x: (x[0], -x[1][1], x[1][0]))
-        # Group (term, weight) by year
-        groupByYear = weight.groupByKey().map(lambda x: (x[0], list(x[1])))
-        # Get the firt k elements
-        getK = groupByYear.map(lambda x: (x[0], list(x[1])[:k])).sortBy(lambda x: x[0])
-        res = getK.map(lambda x: (x[0], ";".join(y[0] + "," + str(y[1]) for y in x[1]))).map(lambda x: x[0] + "\t" + x[1])       
-        
+
+        # Group (term, weight) by year and take the first k elements
+        res = weight.groupBy(lambda x: x[0]).map(lambda x: (x[0], sorted(list(x[1]), key=lambda y: (-y[1][1], y[1][0]))[:k])).sortBy(lambda x: x[0])
+        res = res.map(lambda x: (x[0], ";".join(y[1][0] + "," + str(y[1][1]) for y in x[1]))).map(lambda x: x[0] + "\t" + x[1])
+
         res.coalesce(1).saveAsTextFile(outputPath)
         sc.stop()
 
