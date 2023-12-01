@@ -9,7 +9,7 @@ This repository contains a collection of my data projects, including data analys
 - **Description:** Data analysis project of an ATM dataset that includes Exploratory Data Analysis (EDA) and various machine learning models such as OLS, LASSO, Ridge, Elastic Net, and Neural Network.
 
 ### 3. Australian News Text Data Analysis
-- **Files:** project2_df.py, project2_rdd.py
+- **Files:** analysetextdata_df.py, analysetextdata_rdd.py
 - **Description:** Perform text data analysis over a dataset of Australian news from ABC using both RDD and DataFrame APIs of Spark with Python. The project computes Term Frequency-Inverse Document Frequency (TF-IDF) weights for each term in a given dataset. The input dataset contains dates and terms, and the code processes the data to compute the TF-IDF weights of each term per year. The top 'k' terms with the highest TF-IDF weights for each year are selected and saved to an output file.
 
 ### 4. Scalable Data Processing Pipeline with Apache Spark
