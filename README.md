@@ -8,16 +8,20 @@ This repository contains a collection of my data projects, including data analys
 - **File:** atm_analysis.ipynb
 - **Description:** Data analysis project of an ATM dataset that includes Exploratory Data Analysis (EDA) and various machine learning models such as OLS, LASSO, Ridge, Elastic Net, and Neural Network.
 
-### 2. IoT device classification cybersecurity project
+### 2. IoT device classification cybersecurity project (Machine Learning)
 - **File:** IoTdeviceclassification.ipynb
 - **Description:** Machine learning project utilising IPFIX records (network level features of IoT devices) from 26 different IoT devices to classify IoT devices based on their network
-  level features to enhance cybersecurity measures by idenitfying vulnerable devices on the network based on their network features.
+  level features to enhance cybersecurity measures by idenitfying vulnerable devices on the network based on their network features. Classification models such as Logistic regression, Decision Tree model, Random Forest Model, LightGBM and XGBoost were implemented.
 
-### 3. Australian News Text Data Analysis
+### 3. Predict student performance from game play (Machine Learning)
+- **File:** studentperformance.ipynb
+- **Description:** Predict student performance during game-based learning in real-time. Several classification models were implemented to train on one of the largest open datasets of game logs.
+
+### 4. Australian News Text Data Analysis
 - **Files:** analysetextdata_df.py, analysetextdata_rdd.py
 - **Description:** Perform text data analysis over a dataset of Australian news from ABC using both RDD and DataFrame APIs of Spark with Python. The project computes Term Frequency-Inverse Document Frequency (TF-IDF) weights for each term in a given dataset. The input dataset contains dates and terms, and the code processes the data to compute the TF-IDF weights of each term per year. The top 'k' terms with the highest TF-IDF weights for each year are selected and saved to an output file.
 
-### 4. Scalable Data Processing Pipeline with Apache Spark
+### 5. Scalable Data Processing Pipeline with Apache Spark
 - **File:** processpipeline.py
 - **Description:** The given project is an implementation of a scalable data processing pipeline using Apache Spark. The purpose of this project is to find pairs of similar records in two input datasets based on their Jaccard similarity, subject to a user-defined similarity threshold (tau). The project consists of three main stages:
   - Sorting tokens by frequency
